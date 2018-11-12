@@ -5,7 +5,7 @@ UInteractorComponent::UInteractorComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	Range = 100.0;
+	Range = 200.0;
 }
 
 void UInteractorComponent::BeginPlay()
@@ -19,12 +19,48 @@ void UInteractorComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-
+	StartHoverInteraction();
+	StopHoverInteraction();
 }
 
 
-void UInteractorComponent::TouchInteraction()
+void UInteractorComponent::StartTouchInteraction()
 {
+	TArray<UInteractableComponent*> interactables = TraceForInteractables();
+
+	for(UInteractableComponent* interactable : interactables)
+	{
+		interactable->StartTouchInteraction.Broadcast(this);
+		StartedTouchInteraction.Broadcast(interactable);
+	}
+}
+
+void UInteractorComponent::StopTouchInteraction()
+{
+	TArray<UInteractableComponent*> interactables = TraceForInteractables();
+
+	for(UInteractableComponent* interactable : interactables)
+	{
+		interactable->StartTouchInteraction.Broadcast(this);
+		StartedTouchInteraction.Broadcast(interactable);
+	}
+}
+
+
+void UInteractorComponent::StartHoverInteraction()
+{
+	
+}
+
+void UInteractorComponent::StopHoverInteraction()
+{
+	
+}
+
+
+TArray<UInteractableComponent*> UInteractorComponent::TraceForInteractables() {
+	TArray<UInteractableComponent*> interactables;
+
 	FCollisionQueryParams parameters = FCollisionQueryParams();
 	parameters.bTraceComplex = true;
 	parameters.bIgnoreTouches = true;
@@ -46,11 +82,11 @@ void UInteractorComponent::TouchInteraction()
 
 		for(UActorComponent* component : actor->GetComponentsByClass(UInteractableComponent::StaticClass()))
 		{
-
 			UInteractableComponent* interactable = Cast<UInteractableComponent>(component);
 
-			interactable->OnTouchInteraction.Broadcast(this);
+			interactables.Add(interactable);
 		}
 	}
-}
 
+	return interactables;
+}

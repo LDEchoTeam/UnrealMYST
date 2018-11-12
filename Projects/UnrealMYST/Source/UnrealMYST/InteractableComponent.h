@@ -7,7 +7,11 @@
 #include "InteractableComponent.generated.h"
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTouchInteractionEvent, UInteractorComponent*, Interactor);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStartTouchInteraction, UInteractorComponent*, Interactor);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStopTouchInteraction, UInteractorComponent*, Interactor);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStartHoverInteraction, UInteractorComponent*, Interactor);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStopHoverInteraction, UInteractorComponent*, Interactor);
 
 
 UCLASS(Blueprintable, ClassGroup=(Interaction), meta=(BlueprintSpawnableComponent))
@@ -23,8 +27,18 @@ protected:
 
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 	
 	UPROPERTY(BlueprintAssignable, Category="Interaction")
-    FTouchInteractionEvent OnTouchInteraction;
+    FStartTouchInteraction StartTouchInteraction;
+
+	UPROPERTY(BlueprintAssignable, Category="Interaction")
+	FStopTouchInteraction StopTouchInteraction;
+	
+	UPROPERTY(BlueprintAssignable, Category="Interaction")
+    FStartHoverInteraction StartHoverInteraction;
+
+	UPROPERTY(BlueprintAssignable, Category="Interaction")
+	FStopHoverInteraction StopHoverInteraction;
 
 };
