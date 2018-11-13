@@ -58,9 +58,11 @@ public:
 	float Range;
 
 private:
-	void StartHoverInteraction();
-	void StopHoverInteraction();
+	TArray<TWeakObjectPtr<UInteractableComponent>> TouchInteractables;
+	TArray<TWeakObjectPtr<UInteractableComponent>> HoverInteractables;
 
+	void UpdateHoverInteraction();
+	
 	TArray<UInteractableComponent*> TraceForInteractables();
 
 };

@@ -19,14 +19,20 @@ void UInteractorComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	StartHoverInteraction();
-	StopHoverInteraction();
+	UpdateHoverInteraction();
 }
 
 
 void UInteractorComponent::StartTouchInteraction()
 {
 	TArray<UInteractableComponent*> interactables = TraceForInteractables();
+
+	for(UInteractableComponent* interactable : interactables)
+	{
+		TWeakObjectPtr<UInteractableComponent> touchInteractable = interactable;
+
+		TouchInteractables.Emplace(touchInteractable);
+	}
 
 	for(UInteractableComponent* interactable : interactables)
 	{
@@ -37,24 +43,65 @@ void UInteractorComponent::StartTouchInteraction()
 
 void UInteractorComponent::StopTouchInteraction()
 {
+	for(TWeakObjectPtr<UInteractableComponent> touchInteractable : TouchInteractables)
+	{
+		if(touchInteractable.IsValid() && !touchInteractable->IsPendingKill() && touchInteractable->GetOwner())
+		{
+			touchInteractable->StopTouchInteraction.Broadcast(this);
+			StoppedTouchInteraction.Broadcast(touchInteractable.Get());
+		}
+		else
+		{
+			// Just make sure you test for validity if you start destroying interactables during interaction.
+			StoppedHoverInteraction.Broadcast(nullptr);
+		}
+	}
+
+	TouchInteractables.Empty();
+}
+
+
+void UInteractorComponent::UpdateHoverInteraction()
+{
+	// Copy the list so we can update the public state of the list first.
+	TArray<TWeakObjectPtr<UInteractableComponent>> hoverInteractables = HoverInteractables;
+
 	TArray<UInteractableComponent*> interactables = TraceForInteractables();
+
+	HoverInteractables.Empty();
 
 	for(UInteractableComponent* interactable : interactables)
 	{
-		interactable->StartTouchInteraction.Broadcast(this);
-		StartedTouchInteraction.Broadcast(interactable);
+		TWeakObjectPtr<UInteractableComponent> hoverInteractable = interactable;
+
+		HoverInteractables.Emplace(hoverInteractable);
 	}
-}
 
+	for(TWeakObjectPtr<UInteractableComponent> hoverInteractable : hoverInteractables)
+	{
+		if(hoverInteractable.IsValid() && !hoverInteractable->IsPendingKill() && hoverInteractable->GetOwner())
+		{
+			if(!interactables.Contains(hoverInteractable.Get()))
+			{
+				hoverInteractable->StopHoverInteraction.Broadcast(this);
+				StoppedHoverInteraction.Broadcast(hoverInteractable.Get());
+			}
+		}
+		else
+		{
+			// Just make sure you test for validity if you start destroying interactables during interaction.
+			StoppedHoverInteraction.Broadcast(nullptr);
+		}
+	}
 
-void UInteractorComponent::StartHoverInteraction()
-{
-	
-}
-
-void UInteractorComponent::StopHoverInteraction()
-{
-	
+	for(UInteractableComponent* interactable : interactables)
+	{
+		if(!hoverInteractables.Contains(TWeakObjectPtr<UInteractableComponent>(interactable)))
+		{
+			interactable->StartHoverInteraction.Broadcast(this);
+			StartedHoverInteraction.Broadcast(interactable);
+		}
+	}
 }
 
 
