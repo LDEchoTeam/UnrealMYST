@@ -6,7 +6,7 @@
 
 #include "GlowLightComponent.generated.h"
 
-UCLASS(Blueprintable, ClassGroup=(Lights, Common), ShowCategories=(LightShafts), EditInlineNew, meta=(BlueprintSpawnableComponent))
+UCLASS(Blueprintable, ClassGroup=(Lights), ShowCategories=(LightShafts), EditInlineNew, meta=(BlueprintSpawnableComponent))
 class UNREALMYST_API UGlowLightComponent : public UPointLightComponent
 {
 	GENERATED_BODY()
