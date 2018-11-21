@@ -18,6 +18,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStoppedTouchInteraction, UInteracta
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStartedHoverInteraction, UInteractableComponent*, Interactable);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStoppedHoverInteraction, UInteractableComponent*, Interactable);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStartedEnterInteraction, UInteractableComponent*, Interactable);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStoppedEnterInteraction, UInteractableComponent*, Interactable);
+
 
 UCLASS(Blueprintable, ClassGroup=(Interaction), meta=(BlueprintSpawnableComponent))
 class UNREALMYST_API UInteractorComponent : public UActorComponent
@@ -52,6 +55,12 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category="Interaction")
 	FStoppedHoverInteraction StoppedHoverInteraction;
+	
+	UPROPERTY(BlueprintAssignable, Category="Interaction")
+    FStartedEnterInteraction StartedEnterInteraction;
+
+	UPROPERTY(BlueprintAssignable, Category="Interaction")
+	FStoppedEnterInteraction StoppedEnterInteraction;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction")
@@ -62,7 +71,11 @@ private:
 	TArray<TWeakObjectPtr<UInteractableComponent>> HoverInteractables;
 
 	void UpdateHoverInteraction();
+
+	UFUNCTION()	void StartEnterInteraction(AActor* OverlappedActor, AActor* OtherActor);
+	UFUNCTION()	void StopEnterInteraction(AActor* OverlappedActor, AActor* OtherActor);
 	
 	TArray<UInteractableComponent*> TraceForInteractables();
+	TArray<UInteractableComponent*> SearchForInteractables(AActor* Actor);
 
 };

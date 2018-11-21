@@ -13,6 +13,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStopTouchInteraction, UInteractorCo
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStartHoverInteraction, UInteractorComponent*, Interactor);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStopHoverInteraction, UInteractorComponent*, Interactor);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStartEnterInteraction, UInteractorComponent*, Interactor);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStopEnterInteraction, UInteractorComponent*, Interactor);
+
 
 UCLASS(Blueprintable, ClassGroup=(Interaction), meta=(BlueprintSpawnableComponent))
 class UNREALMYST_API UInteractableComponent : public UActorComponent
@@ -40,5 +43,11 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category="Interaction")
 	FStopHoverInteraction StopHoverInteraction;
+	
+	UPROPERTY(BlueprintAssignable, Category="Interaction")
+    FStartEnterInteraction StartEnterInteraction;
+
+	UPROPERTY(BlueprintAssignable, Category="Interaction")
+	FStopEnterInteraction StopEnterInteraction;
 
 };

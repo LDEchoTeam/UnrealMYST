@@ -12,7 +12,10 @@ void UInteractorComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
+	// TODO Properly support changes in attachment status and destruction of interactables.
+	// TODO Properly support changes in attachment status of this very interactor as well.
+	GetOwner()->OnActorBeginOverlap.AddDynamic(this, &UInteractorComponent::StartEnterInteraction);
+	GetOwner()->OnActorEndOverlap.AddDynamic(this, &UInteractorComponent::StopEnterInteraction);
 }
 
 void UInteractorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -105,9 +108,30 @@ void UInteractorComponent::UpdateHoverInteraction()
 }
 
 
-TArray<UInteractableComponent*> UInteractorComponent::TraceForInteractables() {
-	TArray<UInteractableComponent*> interactables;
+void UInteractorComponent::StartEnterInteraction(AActor* OverlappedActor, AActor* OtherActor)
+{
+	TArray<UInteractableComponent*> interactables = SearchForInteractables(OtherActor);
 
+	for(UInteractableComponent* interactable : interactables)
+	{
+		interactable->StartEnterInteraction.Broadcast(this);
+		StartedEnterInteraction.Broadcast(interactable);
+	}
+}
+
+void UInteractorComponent::StopEnterInteraction(AActor* OverlappedActor, AActor* OtherActor)
+{
+	TArray<UInteractableComponent*> interactables = SearchForInteractables(OtherActor);
+
+	for(UInteractableComponent* interactable : interactables)
+	{
+		interactable->StopEnterInteraction.Broadcast(this);
+		StoppedEnterInteraction.Broadcast(interactable);
+	}
+}
+
+
+TArray<UInteractableComponent*> UInteractorComponent::TraceForInteractables() {
 	FCollisionQueryParams parameters = FCollisionQueryParams();
 	parameters.bTraceComplex = true;
 	parameters.bIgnoreTouches = true;
@@ -127,12 +151,21 @@ TArray<UInteractableComponent*> UInteractorComponent::TraceForInteractables() {
 	{
 		AActor* actor = hit.GetActor();
 
-		for(UActorComponent* component : actor->GetComponentsByClass(UInteractableComponent::StaticClass()))
-		{
-			UInteractableComponent* interactable = Cast<UInteractableComponent>(component);
+		return SearchForInteractables(actor);
+	}
+	else {
+		return TArray<UInteractableComponent*>();
+	}
+}
 
-			interactables.Add(interactable);
-		}
+TArray<UInteractableComponent*> UInteractorComponent::SearchForInteractables(AActor* Actor) {
+	TArray<UInteractableComponent*> interactables;
+
+	for(UActorComponent* component : Actor->GetComponentsByClass(UInteractableComponent::StaticClass()))
+	{
+		UInteractableComponent* interactable = Cast<UInteractableComponent>(component);
+
+		interactables.Add(interactable);
 	}
 
 	return interactables;
