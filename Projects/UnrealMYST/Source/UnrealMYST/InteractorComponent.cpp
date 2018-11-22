@@ -12,8 +12,6 @@ void UInteractorComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// TODO Properly support changes in attachment status and destruction of interactables.
-	// TODO Properly support changes in attachment status of this very interactor as well.
 	GetOwner()->OnActorBeginOverlap.AddDynamic(this, &UInteractorComponent::StartEnterInteraction);
 	GetOwner()->OnActorEndOverlap.AddDynamic(this, &UInteractorComponent::StopEnterInteraction);
 }
@@ -48,7 +46,7 @@ void UInteractorComponent::StopTouchInteraction()
 {
 	for(TWeakObjectPtr<UInteractableComponent> touchInteractable : TouchInteractables)
 	{
-		if(touchInteractable.IsValid() && !touchInteractable->IsPendingKill() && touchInteractable->GetOwner())
+		if(touchInteractable.IsValid() && !touchInteractable->IsPendingKill())
 		{
 			touchInteractable->StopTouchInteraction.Broadcast(this);
 			StoppedTouchInteraction.Broadcast(touchInteractable.Get());
@@ -82,7 +80,7 @@ void UInteractorComponent::UpdateHoverInteraction()
 
 	for(TWeakObjectPtr<UInteractableComponent> hoverInteractable : hoverInteractables)
 	{
-		if(hoverInteractable.IsValid() && !hoverInteractable->IsPendingKill() && hoverInteractable->GetOwner())
+		if(hoverInteractable.IsValid() && !hoverInteractable->IsPendingKill())
 		{
 			if(!interactables.Contains(hoverInteractable.Get()))
 			{
@@ -110,23 +108,51 @@ void UInteractorComponent::UpdateHoverInteraction()
 
 void UInteractorComponent::StartEnterInteraction(AActor* OverlappedActor, AActor* OtherActor)
 {
-	TArray<UInteractableComponent*> interactables = SearchForInteractables(OtherActor);
-
-	for(UInteractableComponent* interactable : interactables)
+	if(OtherActor && !OtherActor->IsPendingKill())
 	{
-		interactable->StartEnterInteraction.Broadcast(this);
-		StartedEnterInteraction.Broadcast(interactable);
+		TArray<UInteractableComponent*> interactables = SearchForInteractables(OtherActor);
+
+		TArray<TWeakObjectPtr<UInteractableComponent>> enterInteractables;
+
+		for(UInteractableComponent* interactable : interactables)
+		{
+			TWeakObjectPtr<UInteractableComponent> enterInteractable = interactable;
+
+			enterInteractables.Emplace(enterInteractable);
+		}
+
+		EnterInteractables.Add(OtherActor, enterInteractables);
+
+		for(UInteractableComponent* interactable : interactables)
+		{
+			interactable->StartEnterInteraction.Broadcast(this);
+			StartedEnterInteraction.Broadcast(interactable);
+		}
 	}
 }
 
 void UInteractorComponent::StopEnterInteraction(AActor* OverlappedActor, AActor* OtherActor)
 {
-	TArray<UInteractableComponent*> interactables = SearchForInteractables(OtherActor);
-
-	for(UInteractableComponent* interactable : interactables)
+	if(OtherActor)
 	{
-		interactable->StopEnterInteraction.Broadcast(this);
-		StoppedEnterInteraction.Broadcast(interactable);
+		TArray<TWeakObjectPtr<UInteractableComponent>> enterInteractables;
+
+		if(EnterInteractables.RemoveAndCopyValue(OtherActor, enterInteractables))
+		{
+			for(TWeakObjectPtr<UInteractableComponent> enterInteractable : enterInteractables)
+			{
+				if(enterInteractable.IsValid() && !enterInteractable->IsPendingKill())
+				{
+					enterInteractable->StopEnterInteraction.Broadcast(this);
+					StoppedEnterInteraction.Broadcast(enterInteractable.Get());
+				}
+				else
+				{
+					// Just make sure you test for validity if you start destroying interactables during interaction.
+					StoppedEnterInteraction.Broadcast(nullptr);
+				}
+			}
+		}
 	}
 }
 

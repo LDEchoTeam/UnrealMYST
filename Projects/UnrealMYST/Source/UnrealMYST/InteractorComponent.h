@@ -70,11 +70,19 @@ private:
 	TArray<TWeakObjectPtr<UInteractableComponent>> TouchInteractables;
 	TArray<TWeakObjectPtr<UInteractableComponent>> HoverInteractables;
 
+	TMap<AActor*, TArray<TWeakObjectPtr<UInteractableComponent>>> EnterInteractables;
+
+
 	void UpdateHoverInteraction();
 
-	UFUNCTION()	void StartEnterInteraction(AActor* OverlappedActor, AActor* OtherActor);
-	UFUNCTION()	void StopEnterInteraction(AActor* OverlappedActor, AActor* OtherActor);
+
+	UFUNCTION()
+	void StartEnterInteraction(AActor* OverlappedActor, AActor* OtherActor);
+
+	UFUNCTION()
+	void StopEnterInteraction(AActor* OverlappedActor, AActor* OtherActor);
 	
+
 	TArray<UInteractableComponent*> TraceForInteractables();
 	TArray<UInteractableComponent*> SearchForInteractables(AActor* Actor);
 
