@@ -1,21 +1,29 @@
 #include "InteractableComponent.h"
 
+#include "InteractorComponent.h"
+
 
 UInteractableComponent::UInteractableComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
+	bInteractable = true;
+
+	Range = 150.0;
 }
 
-void UInteractableComponent::BeginPlay()
-{
-	Super::BeginPlay();
 
-	
+bool UInteractableComponent::IsTouchInteractable_Implementation(UInteractorComponent* interactor)
+{
+	return bInteractable && interactor->bInteractable;
 }
 
-void UInteractableComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+bool UInteractableComponent::IsHoverInteractable_Implementation(UInteractorComponent* interactor)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	return bInteractable && interactor->bInteractable;
+}
 
-
+bool UInteractableComponent::IsEnterInteractable_Implementation(UInteractorComponent* interactor)
+{
+	return bInteractable && interactor->bInteractable;
 }

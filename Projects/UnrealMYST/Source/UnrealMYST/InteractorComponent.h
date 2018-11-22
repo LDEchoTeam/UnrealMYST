@@ -7,8 +7,6 @@
 #include "GameFramework/Actor.h"
 #include "CollisionQueryParams.h"
 
-#include "InteractableComponent.h"
-
 #include "InteractorComponent.generated.h"
 
 
@@ -62,6 +60,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="Interaction")
 	FStoppedEnterInteraction StoppedEnterInteraction;
 
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction")
+	bool bInteractable;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction")
 	float Range;

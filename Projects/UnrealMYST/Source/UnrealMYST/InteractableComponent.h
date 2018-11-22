@@ -25,11 +25,17 @@ class UNREALMYST_API UInteractableComponent : public UActorComponent
 public:
 	UInteractableComponent();
 
-protected:
-	virtual void BeginPlay() override;
+	UFUNCTION(BlueprintNativeEvent, Category="Interaction")
+	bool IsTouchInteractable(UInteractorComponent* interactor);
+	virtual bool IsTouchInteractable_Implementation(UInteractorComponent* interactor);
 
-public:
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	UFUNCTION(BlueprintNativeEvent, Category="Interaction")
+	bool IsHoverInteractable(UInteractorComponent* interactor);
+	virtual bool IsHoverInteractable_Implementation(UInteractorComponent* interactor);
+
+	UFUNCTION(BlueprintNativeEvent, Category="Interaction")
+	bool IsEnterInteractable(UInteractorComponent* interactor);
+	virtual bool IsEnterInteractable_Implementation(UInteractorComponent* interactor);
 
 	
 	UPROPERTY(BlueprintAssignable, Category="Interaction")
@@ -49,5 +55,12 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category="Interaction")
 	FStopEnterInteraction StopEnterInteraction;
+
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction")
+	bool bInteractable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction")
+	float Range;
 
 };

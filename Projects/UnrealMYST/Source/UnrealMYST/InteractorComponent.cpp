@@ -1,11 +1,15 @@
 #include "InteractorComponent.h"
 
+#include "InteractableComponent.h"
+
 
 UInteractorComponent::UInteractorComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	Range = 200.0;
+	bInteractable = true;
+
+	Range = 250.0;
 }
 
 void UInteractorComponent::BeginPlay()
@@ -27,6 +31,13 @@ void UInteractorComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 void UInteractorComponent::StartTouchInteraction()
 {
 	TArray<UInteractableComponent*> interactables = TraceForInteractables();
+
+	interactables.RemoveAll(
+		[this](UInteractableComponent* interactable)
+		{
+			return !interactable->IsTouchInteractable(this);
+		}
+	);
 
 	for(UInteractableComponent* interactable : interactables)
 	{
@@ -68,6 +79,13 @@ void UInteractorComponent::UpdateHoverInteraction()
 	TArray<TWeakObjectPtr<UInteractableComponent>> hoverInteractables = HoverInteractables;
 
 	TArray<UInteractableComponent*> interactables = TraceForInteractables();
+
+	interactables.RemoveAll(
+		[this](UInteractableComponent* interactable)
+		{
+			return !interactable->IsHoverInteractable(this);
+		}
+	);
 
 	HoverInteractables.Empty();
 
@@ -111,6 +129,13 @@ void UInteractorComponent::StartEnterInteraction(AActor* OverlappedActor, AActor
 	if(OtherActor && !OtherActor->IsPendingKill())
 	{
 		TArray<UInteractableComponent*> interactables = SearchForInteractables(OtherActor);
+
+		interactables.RemoveAll(
+			[this](UInteractableComponent* interactable)
+			{
+				return !interactable->IsEnterInteractable(this);
+			}
+		);
 
 		TArray<TWeakObjectPtr<UInteractableComponent>> enterInteractables;
 
