@@ -17,7 +17,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStartEnterInteraction, UInteractorC
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStopEnterInteraction, UInteractorComponent*, Interactor);
 
 
-UCLASS(Blueprintable, ClassGroup=(Interaction), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup=(Interaction), Blueprintable, meta=(BlueprintSpawnableComponent))
 class UNREALMYST_API UInteractableComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -25,42 +25,63 @@ class UNREALMYST_API UInteractableComponent : public UActorComponent
 public:
 	UInteractableComponent();
 
-	UFUNCTION(BlueprintNativeEvent, Category="Interaction")
-	bool IsTouchInteractable(UInteractorComponent* interactor);
-	virtual bool IsTouchInteractable_Implementation(UInteractorComponent* interactor);
+	UFUNCTION(Category="Interaction", BlueprintNativeEvent)
+	bool IsTouchInteractable(UInteractorComponent* Interactor);
+	virtual bool IsTouchInteractable_Implementation(UInteractorComponent* Interactor);
 
-	UFUNCTION(BlueprintNativeEvent, Category="Interaction")
-	bool IsHoverInteractable(UInteractorComponent* interactor);
-	virtual bool IsHoverInteractable_Implementation(UInteractorComponent* interactor);
+	UFUNCTION(Category="Interaction", BlueprintNativeEvent, Category="Interaction")
+	bool IsHoverInteractable(UInteractorComponent* Interactor);
+	virtual bool IsHoverInteractable_Implementation(UInteractorComponent* Interactor);
 
-	UFUNCTION(BlueprintNativeEvent, Category="Interaction")
-	bool IsEnterInteractable(UInteractorComponent* interactor);
-	virtual bool IsEnterInteractable_Implementation(UInteractorComponent* interactor);
+	UFUNCTION(Category="Interaction", BlueprintNativeEvent, Category="Interaction")
+	bool IsEnterInteractable(UInteractorComponent* Interactor);
+	virtual bool IsEnterInteractable_Implementation(UInteractorComponent* Interactor);
 
 	
-	UPROPERTY(BlueprintAssignable, Category="Interaction")
+	UPROPERTY(Category="Interaction", BlueprintAssignable)
     FStartTouchInteraction StartTouchInteraction;
 
-	UPROPERTY(BlueprintAssignable, Category="Interaction")
+	UPROPERTY(Category="Interaction", BlueprintAssignable)
 	FStopTouchInteraction StopTouchInteraction;
 	
-	UPROPERTY(BlueprintAssignable, Category="Interaction")
+	UPROPERTY(Category="Interaction", BlueprintAssignable)
     FStartHoverInteraction StartHoverInteraction;
 
-	UPROPERTY(BlueprintAssignable, Category="Interaction")
+	UPROPERTY(Category="Interaction", BlueprintAssignable)
 	FStopHoverInteraction StopHoverInteraction;
 	
-	UPROPERTY(BlueprintAssignable, Category="Interaction")
+	UPROPERTY(Category="Interaction", BlueprintAssignable)
     FStartEnterInteraction StartEnterInteraction;
 
-	UPROPERTY(BlueprintAssignable, Category="Interaction")
+	UPROPERTY(Category="Interaction", BlueprintAssignable)
 	FStopEnterInteraction StopEnterInteraction;
 
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction")
+	UPROPERTY(Category="Interaction", BlueprintReadWrite, EditAnywhere)
 	bool bInteractable;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction")
+	UPROPERTY(Category="Interaction", BlueprintReadWrite, EditAnywhere, meta=(InlineEditConditionToggle))
+	bool bLimitToInteractorComponentClass;
+
+	UPROPERTY(Category="Interaction", BlueprintReadWrite, EditAnywhere, NoClear, meta=(EditCondition="bLimitToInteractorComponentClass", DisplayName="Limit to Interactor"))
+	TSubclassOf<class UInteractorComponent> InteractorComponentClass;
+
+	UPROPERTY(Category="Interaction", BlueprintReadWrite, EditAnywhere, meta=(InlineEditConditionToggle))
+	bool bLimitToRange;
+
+	UPROPERTY(Category="Interaction", BlueprintReadWrite, EditAnywhere, meta=(EditCondition="bLimitToRange", DisplayName="Limit to Range", ClampMin="1.0"))
 	float Range;
+
+	UPROPERTY(Category="Interaction", BlueprintReadWrite, EditAnywhere)
+	bool bLimitToWindow;
+	
+	UPROPERTY(Category="Interaction", BlueprintReadWrite, EditInstanceOnly, meta=(EditCondition="bLimitToWindow"))
+	TWeakObjectPtr<AActor> Window;
+
+private:
+	bool CheckInteractable(UInteractorComponent* Interactor);
+	bool CheckClass(UInteractorComponent* Interactor);
+	bool CheckRange(UInteractorComponent* Interactor);
+	bool CheckWindow(UInteractorComponent* Interactor);
 
 };

@@ -9,7 +9,13 @@ UInteractorComponent::UInteractorComponent()
 
 	bInteractable = true;
 
-	Range = 250.0;
+	bLimitToInteractableComponentClass = false;
+	InteractableComponentClass = UInteractableComponent::StaticClass();
+
+	bLimitToRange = true;
+	Range = 150.0;
+
+	Trace = 250.0;
 }
 
 void UInteractorComponent::BeginPlay()
@@ -57,7 +63,7 @@ void UInteractorComponent::StopTouchInteraction()
 {
 	for(TWeakObjectPtr<UInteractableComponent> touchInteractable : TouchInteractables)
 	{
-		if(touchInteractable.IsValid() && !touchInteractable->IsPendingKill())
+		if(touchInteractable.IsValid())
 		{
 			touchInteractable->StopTouchInteraction.Broadcast(this);
 			StoppedTouchInteraction.Broadcast(touchInteractable.Get());
@@ -98,7 +104,7 @@ void UInteractorComponent::UpdateHoverInteraction()
 
 	for(TWeakObjectPtr<UInteractableComponent> hoverInteractable : hoverInteractables)
 	{
-		if(hoverInteractable.IsValid() && !hoverInteractable->IsPendingKill())
+		if(hoverInteractable.IsValid())
 		{
 			if(!interactables.Contains(hoverInteractable.Get()))
 			{
@@ -166,7 +172,7 @@ void UInteractorComponent::StopEnterInteraction(AActor* OverlappedActor, AActor*
 		{
 			for(TWeakObjectPtr<UInteractableComponent> enterInteractable : enterInteractables)
 			{
-				if(enterInteractable.IsValid() && !enterInteractable->IsPendingKill())
+				if(enterInteractable.IsValid())
 				{
 					enterInteractable->StopEnterInteraction.Broadcast(this);
 					StoppedEnterInteraction.Broadcast(enterInteractable.Get());
@@ -194,7 +200,7 @@ TArray<UInteractableComponent*> UInteractorComponent::TraceForInteractables() {
 
 	GetOwner()->GetActorEyesViewPoint(start, direction);
 
-	FVector end = start + direction.Vector() * Range;
+	FVector end = start + direction.Vector() * Trace;
 	
 	GetWorld()->LineTraceSingleByChannel(hit, start, end, ECC_Visibility, parameters);
 

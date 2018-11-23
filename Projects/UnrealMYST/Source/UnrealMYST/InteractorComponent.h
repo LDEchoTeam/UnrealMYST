@@ -20,7 +20,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStartedEnterInteraction, UInteracta
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStoppedEnterInteraction, UInteractableComponent*, Interactable);
 
 
-UCLASS(Blueprintable, ClassGroup=(Interaction), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup=(Interaction), Blueprintable, meta=(BlueprintSpawnableComponent))
 class UNREALMYST_API UInteractorComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -35,37 +35,49 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 
-	UFUNCTION(BlueprintCallable, Category="Interaction")
+	UFUNCTION(Category="Interaction", BlueprintCallable)
 	void StartTouchInteraction();
 
-	UFUNCTION(BlueprintCallable, Category="Interaction")
+	UFUNCTION(Category="Interaction", BlueprintCallable)
 	void StopTouchInteraction();
 
 	
-	UPROPERTY(BlueprintAssignable, Category="Interaction")
+	UPROPERTY(Category="Interaction", BlueprintAssignable)
     FStartedTouchInteraction StartedTouchInteraction;
 
-	UPROPERTY(BlueprintAssignable, Category="Interaction")
+	UPROPERTY(Category="Interaction", BlueprintAssignable)
 	FStoppedTouchInteraction StoppedTouchInteraction;
 	
-	UPROPERTY(BlueprintAssignable, Category="Interaction")
+	UPROPERTY(Category="Interaction", BlueprintAssignable)
     FStartedHoverInteraction StartedHoverInteraction;
 
-	UPROPERTY(BlueprintAssignable, Category="Interaction")
+	UPROPERTY(Category="Interaction", BlueprintAssignable)
 	FStoppedHoverInteraction StoppedHoverInteraction;
 	
-	UPROPERTY(BlueprintAssignable, Category="Interaction")
+	UPROPERTY(Category="Interaction", BlueprintAssignable)
     FStartedEnterInteraction StartedEnterInteraction;
 
-	UPROPERTY(BlueprintAssignable, Category="Interaction")
+	UPROPERTY(Category="Interaction", BlueprintAssignable)
 	FStoppedEnterInteraction StoppedEnterInteraction;
 
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction")
+	UPROPERTY(Category="Interaction", BlueprintReadWrite, EditAnywhere)
 	bool bInteractable;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction")
+	UPROPERTY(Category="Interaction", BlueprintReadWrite, EditAnywhere, meta=(InlineEditConditionToggle))
+	bool bLimitToInteractableComponentClass;
+
+	UPROPERTY(Category="Interaction", BlueprintReadWrite, EditAnywhere, NoClear, meta=(EditCondition="bLimitToInteractableComponentClass", DisplayName="Limit to Interactable"))
+	TSubclassOf<class UInteractableComponent> InteractableComponentClass;
+
+	UPROPERTY(Category="Interaction", BlueprintReadWrite, EditAnywhere, meta=(InlineEditConditionToggle))
+	bool bLimitToRange;
+
+	UPROPERTY(Category="Interaction", BlueprintReadWrite, EditAnywhere, meta=(EditCondition="bLimitToRange", DisplayName="Limit to Range", ClampMin="1.0"))
 	float Range;
+
+	UPROPERTY(Category="Interaction", BlueprintReadWrite, EditAnywhere, meta=(ClampMin="1.0"))
+	float Trace;
 
 private:
 	TArray<TWeakObjectPtr<UInteractableComponent>> TouchInteractables;
