@@ -20,6 +20,12 @@ UInteractableComponent::UInteractableComponent()
 }
 
 
+FVector UInteractableComponent::GetInteractionPosition_Implementation()
+{
+	return GetOwner()->GetActorLocation();
+}
+
+
 bool UInteractableComponent::IsTouchInteractable_Implementation(UInteractorComponent* Interactor)
 {
 	return CheckInteractable(Interactor) && CheckClass(Interactor) && CheckRange(Interactor) && CheckWindow(Interactor);
@@ -63,12 +69,8 @@ bool UInteractableComponent::CheckRange(UInteractorComponent* Interactor)
 		range = FMath::Min(range, Range);
 	}
 
-	FVector start;
-	FRotator direction;
-
-	GetOwner()->GetActorEyesViewPoint(start, direction);
-
-	FVector end = Interactor->GetOwner()->GetActorLocation();
+	FVector start = Interactor->GetInteractionPosition();
+	FVector end = GetInteractionPosition();
 
 	float distance = (start - end).Size();
 

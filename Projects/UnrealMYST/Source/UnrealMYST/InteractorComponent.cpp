@@ -34,6 +34,27 @@ void UInteractorComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 }
 
 
+FVector UInteractorComponent::GetInteractionPosition_Implementation()
+{
+	FVector location;
+	FRotator rotation;
+	
+	GetOwner()->GetActorEyesViewPoint(location, rotation);
+
+	return location;
+}
+
+FVector UInteractorComponent::GetInteractionDirection_Implementation()
+{
+	FVector location;
+	FRotator rotation;
+	
+	GetOwner()->GetActorEyesViewPoint(location, rotation);
+
+	return rotation.Vector();
+}
+
+
 void UInteractorComponent::StartTouchInteraction()
 {
 	TArray<UInteractableComponent*> interactables = TraceForInteractables();
@@ -195,12 +216,10 @@ TArray<UInteractableComponent*> UInteractorComponent::TraceForInteractables() {
 
 	FHitResult hit(ForceInit);
 
-	FVector start;
-	FRotator direction;
+	FVector start = GetInteractionPosition();
+	FVector direction = GetInteractionDirection();
 
-	GetOwner()->GetActorEyesViewPoint(start, direction);
-
-	FVector end = start + direction.Vector() * Trace;
+	FVector end = start + direction * Trace;
 	
 	GetWorld()->LineTraceSingleByChannel(hit, start, end, ECC_Visibility, parameters);
 

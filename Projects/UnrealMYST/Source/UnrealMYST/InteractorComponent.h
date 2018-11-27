@@ -35,6 +35,13 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 
+	UFUNCTION(Category="Interaction", BlueprintNativeEvent)
+	FVector GetInteractionPosition();
+
+	UFUNCTION(Category="Interaction", BlueprintNativeEvent)
+	FVector GetInteractionDirection();
+
+
 	UFUNCTION(Category="Interaction", BlueprintCallable)
 	void StartTouchInteraction();
 
@@ -67,7 +74,7 @@ public:
 	UPROPERTY(Category="Interaction", BlueprintReadWrite, EditAnywhere, meta=(InlineEditConditionToggle))
 	bool bLimitToInteractableComponentClass;
 
-	UPROPERTY(Category="Interaction", BlueprintReadWrite, EditAnywhere, NoClear, meta=(EditCondition="bLimitToInteractableComponentClass", DisplayName="Limit to Interactable"))
+	UPROPERTY(Category="Interaction", BlueprintReadWrite, EditAnywhere, NoClear, meta=(EditCondition="bLimitToInteractableComponentClass", DisplayName="Limit to Interactable Component Class"))
 	TSubclassOf<class UInteractableComponent> InteractableComponentClass;
 
 	UPROPERTY(Category="Interaction", BlueprintReadWrite, EditAnywhere, meta=(InlineEditConditionToggle))
@@ -78,6 +85,10 @@ public:
 
 	UPROPERTY(Category="Interaction", BlueprintReadWrite, EditAnywhere, meta=(ClampMin="1.0"))
 	float Trace;
+
+protected:
+	virtual FVector GetInteractionPosition_Implementation();
+	virtual FVector GetInteractionDirection_Implementation();
 
 private:
 	TArray<TWeakObjectPtr<UInteractableComponent>> TouchInteractables;
