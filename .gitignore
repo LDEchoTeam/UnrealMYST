@@ -75,3 +75,10 @@ Plugins/*/Intermediate/
 
 # Cache files for the editor to use
 DerivedDataCache/
+
+# Blender
+*.blend1
+
+# Substance Designer
+.autosave/
+*.resources/
