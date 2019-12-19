@@ -82,3 +82,6 @@ DerivedDataCache/
 # Substance Designer
 .autosave/
 *.resources/
+
+# Substance Painter
+*_autosave_*.spp
